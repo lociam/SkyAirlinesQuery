@@ -8,18 +8,48 @@ class SkyAirlinesClient {
   // Definitions
   //---------------------------------------------------------------------
   
-  val REQUEST_URL = "http://www.skyairlines.cl"
+  val REQUEST_URL = "http://www.skyairline.cl/es/paso2.aspx"
+  //val REQUEST_URL = "http://www.skyairline.cl/es/index.aspx"
   
   //---------------------------------------------------------------------
   // Functions
   //---------------------------------------------------------------------
    
   
-  def request(origin: String){
-    
-    val response: HttpResponse[String] = 
-      Http(REQUEST_URL).postForm(Seq("test" -> origin, "test2" -> "b")).asString
+  def request(params: ReqParams){
       
+    var httpParams = Seq(
+          "origen" -> params.origin,
+          "idaOculto" -> params.origin,
+          "destino" -> params.destination,
+          "destinoOculto" -> params.destination,
+          "fecha_ida" -> params.startDate.replace("-","/"),
+          "fecha_vuel" -> params.endDate.replace("-","/"),
+          "n_adulto" -> params.adults.toString(),
+          "n_ninos" -> params.children.toString(),
+          "n_infantes" -> params.babys.toString(),
+          "opcion1" -> "2",
+          "btn_buscar" -> "Buscar vuelos"
+        )
+        
+    var httpHeaders = Seq(
+          "Accept" -> "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+          "Origin" -> "http://www.skyairline.cl",
+          "User-Agent" -> "Scala",
+          "Content-Type" -> "application/x-www-form-urlencoded",
+          "Referer" -> "http://www.skyairline.cl/es/paso2.aspx",
+          "Accept-Encoding" -> "gzip, deflate",
+          "Accept-Language" -> "es-419,es;q=0.8",
+          "Cookie" -> "TieneIdioma=paisRoot=CL&paisRootNombre=Chile&Idioma=ES"
+          
+          
+        )
+        
+    var request: HttpRequest = Http(REQUEST_URL).headers(httpHeaders).postForm(httpParams)
+    println(request)
+    
+    var response: HttpResponse[String] = 
+      request.asString      
       println(response)
   }
   
@@ -38,7 +68,7 @@ class SkyAirlinesClient {
           )
     }
     
-    request(params.origin)
+    request(params)
     
     list
   }
